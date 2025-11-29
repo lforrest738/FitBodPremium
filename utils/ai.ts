@@ -1,13 +1,15 @@
+// Force Git Update
 
 import { GoogleGenAI } from "@google/genai";
 
-// Initialize the client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy initialize the client to prevent crash on startup if key is missing
+const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 // --- 1. CHATBOT (Complex Tasks) ---
 // Model: gemini-3-pro-preview
 export const generateChatResponse = async (history: {role: string, parts: {text: string}[]}[], message: string) => {
   try {
+    const ai = getAI();
     const chat = ai.chats.create({
       model: 'gemini-3-pro-preview',
       history: history,
@@ -28,6 +30,7 @@ export const generateChatResponse = async (history: {role: string, parts: {text:
 // Model: gemini-2.5-flash with googleSearch tool
 export const generateSearchResponse = async (query: string) => {
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: query,
@@ -51,6 +54,7 @@ export const generateSearchResponse = async (query: string) => {
 // Model: gemini-3-pro-preview
 export const analyzeFoodImage = async (base64Image: string) => {
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: {
@@ -71,6 +75,7 @@ export const analyzeFoodImage = async (base64Image: string) => {
 // Model: gemini-2.5-flash-lite
 export const getQuickTip = async () => {
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-lite',
       contents: "Give me a very short, punchy, 1-sentence fitness motivation quote or tip for someone with limited mobility or energy.",
@@ -85,6 +90,7 @@ export const getQuickTip = async () => {
 // Model: gemini-2.5-flash
 export const transcribeAudio = async (base64Audio: string) => {
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: {

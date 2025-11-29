@@ -1,3 +1,4 @@
+// Force Git Update
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { AppState, UserProfile, HistoryEntry, Exercise } from '../types';

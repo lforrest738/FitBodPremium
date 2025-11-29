@@ -1,3 +1,4 @@
+// Force Git Update
 
 import React from 'react';
 import { Home, Dumbbell, Utensils, BarChart2, User, Gift, Sparkles } from 'lucide-react';

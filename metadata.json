@@ -1,4 +1,5 @@
 {
+  "_comment": "Force Git Update",
   "name": "fitbod",
   "description": "An adaptive, inclusive fitness application designed for all bodies and abilities. Features intelligent workout generation, nutrition tracking, and high-contrast accessibility modes.",
   "requestFramePermissions": [

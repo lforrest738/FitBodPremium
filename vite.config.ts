@@ -1,3 +1,5 @@
+// Force Git Update
+
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -10,6 +12,8 @@ export default defineConfig(({ mode }) => {
     define: {
       // This is necessary because the Google GenAI SDK uses process.env.API_KEY
       'process.env.API_KEY': JSON.stringify(env.API_KEY),
+      // Polyfill process.env to prevent ReferenceError in browser
+      'process.env': JSON.stringify(env),
     },
   }
 })
