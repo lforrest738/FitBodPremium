@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Card, ScreenTitle, Button } from '../components/UI';
+import { Card, ScreenTitle } from '../components/UI';
 import { Droplet, Flame, Trophy, Play, RotateCw, Crown, Sparkles } from 'lucide-react';
 import { QUOTES } from '../data';
 import { getQuickTip } from '../utils/ai';
@@ -13,6 +13,9 @@ export const Dashboard: React.FC<{ onStartWorkout: () => void; onUpgrade: () => 
 
   // Determine total duration of current plan
   const totalMins = currentPlan.reduce((acc, ex) => acc + ex.mins, 0);
+
+  // Visual calculation (capped at 100% for the bar, but text shows true value)
+  const hydrationFill = Math.min((hydration / 8) * 100, 100);
 
   const handleAiTip = async () => {
     setLoadingTip(true);
@@ -61,7 +64,7 @@ export const Dashboard: React.FC<{ onStartWorkout: () => void; onUpgrade: () => 
             {!highContrast && (
                 <div 
                     className="absolute bottom-0 left-0 w-full bg-blue-100 transition-all duration-700 ease-out" 
-                    style={{ height: `${(hydration / 8) * 100}%` }} 
+                    style={{ height: `${hydrationFill}%` }} 
                 />
             )}
             
@@ -77,7 +80,7 @@ export const Dashboard: React.FC<{ onStartWorkout: () => void; onUpgrade: () => 
                 </div>
             </div>
             {highContrast && (
-                <div className="absolute bottom-0 left-0 h-2 bg-yellow-400 transition-all" style={{ width: `${(hydration / 8) * 100}%` }} />
+                <div className="absolute bottom-0 left-0 h-2 bg-yellow-400 transition-all" style={{ width: `${hydrationFill}%` }} />
             )}
         </Card>
       </div>

@@ -27,6 +27,8 @@ export const Nutrition: React.FC = () => {
           setAnalysisResult("Failed to analyze image.");
       } finally {
           setAnalyzing(false);
+          // Reset input to allow selecting same file again
+          if (fileInputRef.current) fileInputRef.current.value = '';
       }
   };
 
