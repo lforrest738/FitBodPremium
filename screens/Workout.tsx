@@ -1,49 +1,32 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Button, Card, ScreenTitle } from '../components/UI';
-import { EXERCISES } from '../data';
-import { Exercise } from '../types';
 import { ArrowRight, CheckCircle, Volume2 } from 'lucide-react';
 
 export const Workout: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
-  const { user, highContrast, addToHistory } = useApp();
-  const [plan, setPlan] = useState<Exercise[]>([]);
+  const { currentPlan, highContrast, addToHistory } = useApp();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
 
-  useEffect(() => {
-    // Logic from original Python script to filter exercises
-    if (!user) return;
-    
-    let candidates = EXERCISES.filter(ex => {
-        const hasExclusion = (user.disabilities.includes("Bed-Bound") && !ex.tags.includes("Bed-Bound")) ||
-                             (user.disabilities.includes("Wheelchair User") && !["Wheelchair User", "Upper Body", "Cardio"].some(t => ex.tags.includes(t as any)));
-        if (hasExclusion) return false;
-        
-        // Scoring (Simplified inclusion for now)
-        return user.disabilities.some(d => ex.tags.includes(d)) || ex.tags.includes(user.goal as any);
-    });
-
-    // Fallback if strict filtering leaves nothing
-    if (candidates.length === 0) candidates = EXERCISES;
-
-    // Shuffle and pick 3
-    setPlan(candidates.sort(() => 0.5 - Math.random()).slice(0, 3));
-  }, [user]);
-
   const handleNext = () => {
-    if (currentIndex < plan.length - 1) {
+    if (currentIndex < currentPlan.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
       setIsCompleted(true);
+      
+      // Calculate categories for Stats Radar Chart
+      const categories = currentPlan.map(ex => ex.cat);
+
       addToHistory({
         date: new Date().toISOString().split('T')[0],
-        minutes: plan.reduce((acc, curr) => acc + curr.mins, 0)
+        minutes: currentPlan.reduce((acc, curr) => acc + curr.mins, 0),
+        categories: categories
       });
     }
   };
 
-  const currentExercise = plan[currentIndex];
+  const currentExercise = currentPlan[currentIndex];
 
   if (!currentExercise && !isCompleted) return <div>Loading personalized plan...</div>;
 
@@ -63,7 +46,7 @@ export const Workout: React.FC<{ onComplete: () => void }> = ({ onComplete }) =>
   return (
     <div className="pb-24">
       <div className="flex items-center justify-between mb-6">
-        <ScreenTitle title="Workout" subtitle={`Exercise ${currentIndex + 1} of ${plan.length}`} />
+        <ScreenTitle title="Workout" subtitle={`Exercise ${currentIndex + 1} of ${currentPlan.length}`} />
         <span className={`px-3 py-1 rounded-full text-xs font-bold ${highContrast ? 'bg-black text-white' : 'bg-slate-200 text-slate-600'}`}>
             {currentExercise.mins} MIN
         </span>
@@ -74,7 +57,7 @@ export const Workout: React.FC<{ onComplete: () => void }> = ({ onComplete }) =>
          <div className="absolute top-0 left-0 w-full h-2 bg-gray-100">
             <div 
                 className={`h-full transition-all duration-300 ${highContrast ? 'bg-black' : 'bg-indigo-600'}`} 
-                style={{ width: `${((currentIndex + 1) / plan.length) * 100}%` }} 
+                style={{ width: `${((currentIndex + 1) / currentPlan.length) * 100}%` }} 
             />
          </div>
 
@@ -102,7 +85,7 @@ export const Workout: React.FC<{ onComplete: () => void }> = ({ onComplete }) =>
 
          <div className="mt-8 pt-6 border-t border-gray-100">
              <Button fullWidth onClick={handleNext} className="flex items-center justify-center gap-2">
-                 {currentIndex === plan.length - 1 ? 'Finish' : 'Next Exercise'}
+                 {currentIndex === currentPlan.length - 1 ? 'Finish' : 'Next Exercise'}
                  <ArrowRight size={20} />
              </Button>
          </div>

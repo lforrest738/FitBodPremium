@@ -1,3 +1,4 @@
+
 import React, { ReactNode } from 'react';
 import { useApp } from '../context/AppContext';
 
@@ -82,11 +83,11 @@ export const ScreenTitle: React.FC<{ title: string; subtitle?: string }> = ({ ti
     const { highContrast } = useApp();
     return (
         <div className="mb-8">
-            <h1 className={`text-3xl ${highContrast ? 'font-black uppercase tracking-tighter text-black underline decoration-yellow-400 decoration-4' : 'font-extrabold text-slate-900 tracking-tight'}`}>
+            <h1 className={`text-3xl ${highContrast ? 'font-black uppercase tracking-tighter text-white underline decoration-yellow-400 decoration-4' : 'font-extrabold text-slate-900 tracking-tight'}`}>
                 {title}
             </h1>
             {subtitle && (
-                <p className={`mt-2 ${highContrast ? 'text-black font-bold text-lg' : 'text-slate-500'}`}>
+                <p className={`mt-2 ${highContrast ? 'text-black bg-yellow-400 inline-block px-1 font-bold text-lg' : 'text-slate-500'}`}>
                     {subtitle}
                 </p>
             )}

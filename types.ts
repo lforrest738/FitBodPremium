@@ -1,3 +1,4 @@
+
 export type Tag = 
   | "Wheelchair User" 
   | "Upper Body" 
@@ -24,7 +25,10 @@ export type Tag =
   | "Coordination" 
   | "Fun"
   | "General Fitness"
-  | "Mental Health";
+  | "Mental Health"
+  | "Mobility Limited"
+  | "Pain Relief"
+  | "Visual Impairment";
 
 export interface Exercise {
   id: string;
@@ -45,6 +49,16 @@ export interface Recipe {
   ing: string[];
 }
 
+export interface PartnerOffer {
+  id: string;
+  company: string;
+  offer: string;
+  code: string;
+  color: string;
+  logo: string;
+  category: "Nutrition" | "Gear" | "Wellness";
+}
+
 export interface UserProfile {
   name: string;
   disabilities: Tag[];
@@ -55,6 +69,7 @@ export interface UserProfile {
 export interface HistoryEntry {
   date: string;
   minutes: number;
+  categories: string[]; // To track balance for radar chart
 }
 
 export interface AppState {
@@ -65,4 +80,5 @@ export interface AppState {
   inventory: string[]; // Recipe IDs
   shoppingList: string[];
   highContrast: boolean;
+  isPremium: boolean;
 }

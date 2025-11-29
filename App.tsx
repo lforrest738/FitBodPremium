@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Layout } from './components/Layout';
@@ -6,29 +7,55 @@ import { Dashboard } from './screens/Dashboard';
 import { Workout } from './screens/Workout';
 import { Nutrition } from './screens/Nutrition';
 import { Stats } from './screens/Stats';
+import { Partners } from './screens/Partners';
+import { Premium } from './screens/Premium';
 import { ScreenTitle, Button, Card } from './components/UI';
-import { Eye, RotateCcw } from 'lucide-react';
+import { Eye, RotateCcw, Crown } from 'lucide-react';
 
 // Wrapper component to handle routing logic inside the Provider
 const AppContent: React.FC = () => {
-  const { user, highContrast, toggleHighContrast, resetState } = useApp();
+  const { user, highContrast, toggleHighContrast, resetState, isPremium } = useApp();
   const [activeTab, setActiveTab] = useState('home');
+  // MOVED UP: Hooks must be executed in the same order every render. 
+  // Cannot be after the conditional return (!user).
+  const [showPremium, setShowPremium] = useState(false);
 
   if (!user) {
     return <Onboarding />;
   }
 
+  // Override view if user clicks "Upgrade"
+  if (showPremium) {
+      return <Premium onBack={() => setShowPremium(false)} />;
+  }
+
   const renderScreen = () => {
     switch (activeTab) {
-      case 'home': return <Dashboard onStartWorkout={() => setActiveTab('workout')} />;
+      case 'home': return <Dashboard onStartWorkout={() => setActiveTab('workout')} onUpgrade={() => setShowPremium(true)} />;
       case 'workout': return <Workout onComplete={() => setActiveTab('home')} />;
       case 'food': return <Nutrition />;
-      case 'stats': return <Stats />;
+      case 'partners': return <Partners />;
+      case 'stats': return <Stats onUpgrade={() => setShowPremium(true)} />;
       case 'settings': return (
         <div>
             <ScreenTitle title="Settings" subtitle="Customize your experience." />
             
             <div className="space-y-6">
+                {!isPremium && (
+                    <Card className="flex items-center justify-between border-2 border-indigo-100" onClick={() => setShowPremium(true)}>
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-full bg-indigo-100 text-indigo-600">
+                                <Crown size={24} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold">Upgrade to Pro</h3>
+                                <p className="text-sm opacity-70">Unlock everything</p>
+                            </div>
+                        </div>
+                        <Button className="scale-75">GO</Button>
+                    </Card>
+                )}
+
                 <Card className="flex items-center justify-between" onClick={toggleHighContrast}>
                     <div className="flex items-center gap-4">
                         <div className={`p-3 rounded-full ${highContrast ? 'bg-white text-black' : 'bg-slate-100'}`}>
@@ -50,7 +77,7 @@ const AppContent: React.FC = () => {
             </div>
         </div>
       );
-      default: return <Dashboard onStartWorkout={() => setActiveTab('workout')} />;
+      default: return <Dashboard onStartWorkout={() => setActiveTab('workout')} onUpgrade={() => setShowPremium(true)} />;
     }
   };
 

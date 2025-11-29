@@ -1,13 +1,18 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppState, UserProfile, HistoryEntry } from '../types';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { AppState, UserProfile, HistoryEntry, Exercise } from '../types';
+import { EXERCISES } from '../data';
 
 interface AppContextType extends AppState {
+  currentPlan: Exercise[];
   updateUser: (user: UserProfile) => void;
   toggleHighContrast: () => void;
   incrementHydration: () => void;
   addToHistory: (entry: HistoryEntry) => void;
   purchaseRecipe: (id: string, ingredients: string[]) => void;
-  toggleShoppingItem: (item: string) => void; // For checking off items
+  toggleShoppingItem: (item: string) => void;
+  refreshPlan: () => void;
+  upgradeToPremium: () => void;
   resetState: () => void;
 }
 
@@ -19,6 +24,7 @@ const defaultState: AppState = {
   inventory: [],
   shoppingList: [],
   highContrast: false,
+  isPremium: false,
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -29,11 +35,50 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return saved ? JSON.parse(saved) : defaultState;
   });
 
+  const [currentPlan, setCurrentPlan] = useState<Exercise[]>([]);
+
   useEffect(() => {
     localStorage.setItem('fitbod_state', JSON.stringify(state));
   }, [state]);
 
-  const updateUser = (user: UserProfile) => setState(prev => ({ ...prev, user }));
+  // Generate a plan based on user profile
+  const generatePlan = useCallback((user: UserProfile | null): Exercise[] => {
+    if (!user) return [];
+
+    let candidates = EXERCISES.filter(ex => {
+        // 1. Safety Filter (Exclusions)
+        const hasExclusion = (user.disabilities.includes("Bed-Bound") && !ex.tags.includes("Bed-Bound")) ||
+                             (user.disabilities.includes("Wheelchair User") && !ex.tags.includes("Wheelchair User") && !ex.tags.includes("Upper Body") && !ex.tags.includes("Cardio"));
+        if (hasExclusion) return false;
+        
+        // 2. Inclusion Logic
+        const matchesDisability = user.disabilities.some(d => ex.tags.includes(d));
+        const matchesGoal = ex.tags.includes(user.goal as any) || ex.cat === user.goal;
+        
+        return matchesDisability || matchesGoal;
+    });
+
+    if (candidates.length === 0) candidates = EXERCISES;
+
+    // Shuffle and pick 3-4
+    return candidates.sort(() => 0.5 - Math.random()).slice(0, 3);
+  }, []);
+
+  // Initial plan generation
+  useEffect(() => {
+    if (state.user && currentPlan.length === 0) {
+      setCurrentPlan(generatePlan(state.user));
+    }
+  }, [state.user, generatePlan]);
+
+  const refreshPlan = () => {
+    setCurrentPlan(generatePlan(state.user));
+  };
+
+  const updateUser = (user: UserProfile) => {
+    setState(prev => ({ ...prev, user }));
+    setCurrentPlan(generatePlan(user));
+  };
   
   const toggleHighContrast = () => setState(prev => ({ ...prev, highContrast: !prev.highContrast }));
   
@@ -58,25 +103,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
 
   const toggleShoppingItem = (item: string) => {
-    // In a real app, we might have a 'checked' state object. 
-    // Here we'll just remove it to simulate "done".
     setState(prev => ({
       ...prev,
       shoppingList: prev.shoppingList.filter(i => i !== item)
     }));
   };
 
-  const resetState = () => setState(defaultState);
+  const upgradeToPremium = () => {
+    setState(prev => ({ ...prev, isPremium: true }));
+  };
+
+  const resetState = () => {
+    setState(defaultState);
+    setCurrentPlan([]);
+  };
 
   return (
     <AppContext.Provider value={{ 
       ...state, 
+      currentPlan,
       updateUser, 
       toggleHighContrast, 
       incrementHydration, 
       addToHistory,
       purchaseRecipe,
       toggleShoppingItem,
+      refreshPlan,
+      upgradeToPremium,
       resetState
     }}>
       {children}

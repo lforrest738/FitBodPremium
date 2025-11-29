@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Home, Dumbbell, Utensils, BarChart2, User } from 'lucide-react';
+import { Home, Dumbbell, Utensils, BarChart2, User, Gift } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 interface LayoutProps {
@@ -15,6 +16,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
     { id: 'home', icon: <Home size={22} />, label: 'Home' },
     { id: 'workout', icon: <Dumbbell size={22} />, label: 'Train' },
     { id: 'food', icon: <Utensils size={22} />, label: 'Food' },
+    { id: 'partners', icon: <Gift size={22} />, label: 'Perks' }, // New Tab
     { id: 'stats', icon: <BarChart2 size={22} />, label: 'Stats' },
     { id: 'settings', icon: <User size={22} />, label: 'Profile' },
   ];
