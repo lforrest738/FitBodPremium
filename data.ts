@@ -73,7 +73,7 @@ export const RECIPES: Recipe[] = [
     id: "r1", 
     title: "Power Protein Oats", 
     price: 0.99, 
-    img: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=600&q=80", 
+    img: "https://simplyfreshfoodie.com/wp-content/uploads/2022/10/peanut-butter-and-banana-protein-oats-feature-image.jpg", 
     desc: "Sustained energy release with berries.", 
     ing: ["Rolled Oats", "Protein Powder", "Chia Seeds", "Almond Milk", "Blueberries"] 
   },
@@ -105,7 +105,7 @@ export const RECIPES: Recipe[] = [
     id: "r5",
     title: "Berry Chia Pudding",
     price: 0.89,
-    img: "https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=600&q=80",
+    img: "https://www.eatingwell.com/thmb/4gvfgsKcjfN-ivg98H07Xt2OBsI=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/5872993-009f3946ef964c9c95a3dc2cb5b78db9.jpg",
     desc: "High fiber, easy digestion snack.",
     ing: ["Chia Seeds", "Almond Milk", "Raspberries", "Maple Syrup"]
   }

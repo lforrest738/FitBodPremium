@@ -1,16 +1,25 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Card, ScreenTitle, Button } from '../components/UI';
-import { Droplet, Flame, Trophy, Play, RotateCw, Crown } from 'lucide-react';
+import { Droplet, Flame, Trophy, Play, RotateCw, Crown, Sparkles } from 'lucide-react';
 import { QUOTES } from '../data';
+import { getQuickTip } from '../utils/ai';
 
 export const Dashboard: React.FC<{ onStartWorkout: () => void; onUpgrade: () => void }> = ({ onStartWorkout, onUpgrade }) => {
   const { user, streak, hydration, incrementHydration, highContrast, currentPlan, refreshPlan, isPremium } = useApp();
-  const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  const [dailyQuote, setDailyQuote] = useState(QUOTES[Math.floor(Math.random() * QUOTES.length)]);
+  const [loadingTip, setLoadingTip] = useState(false);
 
   // Determine total duration of current plan
   const totalMins = currentPlan.reduce((acc, ex) => acc + ex.mins, 0);
+
+  const handleAiTip = async () => {
+    setLoadingTip(true);
+    const tip = await getQuickTip();
+    if (tip) setDailyQuote(tip);
+    setLoadingTip(false);
+  };
 
   return (
     <div className="pb-24">
@@ -73,15 +82,22 @@ export const Dashboard: React.FC<{ onStartWorkout: () => void; onUpgrade: () => 
         </Card>
       </div>
 
-      {/* Daily Insight */}
-      <Card className={`mb-6 ${highContrast ? 'bg-black text-white border-4 border-yellow-400' : 'bg-gradient-to-br from-indigo-500 to-indigo-700 text-white border-none'}`}>
+      {/* Daily Insight with AI Refresh */}
+      <Card className={`mb-6 relative ${highContrast ? 'bg-black text-white border-4 border-yellow-400' : 'bg-gradient-to-br from-indigo-500 to-indigo-700 text-white border-none'}`}>
         <div className="flex items-start gap-4">
           <Trophy className={`shrink-0 mt-1 ${highContrast ? 'text-yellow-400' : 'text-yellow-300'}`} />
           <div>
             <h3 className={`font-bold text-lg mb-1 ${highContrast ? 'text-yellow-400' : 'text-white'}`}>Daily Insight</h3>
-            <p className={`${highContrast ? 'text-white' : 'text-indigo-100'} leading-relaxed italic`}>"{quote}"</p>
+            <p className={`${highContrast ? 'text-white' : 'text-indigo-100'} leading-relaxed italic pr-6`}>"{dailyQuote}"</p>
           </div>
         </div>
+        <button 
+          onClick={handleAiTip}
+          disabled={loadingTip}
+          className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${highContrast ? 'hover:bg-gray-800' : 'hover:bg-white/10'}`}
+        >
+          <Sparkles size={18} className={loadingTip ? "animate-spin" : ""} />
+        </button>
       </Card>
 
       {/* Start Workout Action */}

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, Dumbbell, Utensils, BarChart2, User, Gift } from 'lucide-react';
+import { Home, Dumbbell, Utensils, BarChart2, User, Gift, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 interface LayoutProps {
@@ -15,8 +15,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   const navItems = [
     { id: 'home', icon: <Home size={22} />, label: 'Home' },
     { id: 'workout', icon: <Dumbbell size={22} />, label: 'Train' },
+    { id: 'coach', icon: <Sparkles size={22} />, label: 'Coach' }, // New AI Coach Tab
     { id: 'food', icon: <Utensils size={22} />, label: 'Food' },
-    { id: 'partners', icon: <Gift size={22} />, label: 'Perks' }, // New Tab
+    { id: 'partners', icon: <Gift size={22} />, label: 'Perks' },
     { id: 'stats', icon: <BarChart2 size={22} />, label: 'Stats' },
     { id: 'settings', icon: <User size={22} />, label: 'Profile' },
   ];
@@ -31,8 +32,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
       </main>
 
       {/* Bottom Navigation */}
-      <nav className={`fixed bottom-0 left-0 w-full z-50 ${navColor} pb-safe`}>
-        <div className="max-w-md mx-auto flex justify-around items-center p-3">
+      <nav className={`fixed bottom-0 left-0 w-full z-50 ${navColor} pb-safe overflow-x-auto no-scrollbar`}>
+        <div className="max-w-md mx-auto flex justify-between items-center p-3 min-w-max md:min-w-0 md:justify-around gap-4 md:gap-0">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -40,7 +41,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
                 className={`
-                  relative flex flex-col items-center gap-1 p-2 transition-all duration-300
+                  relative flex flex-col items-center gap-1 p-2 transition-all duration-300 min-w-[50px]
                   ${isActive 
                     ? (highContrast ? 'text-yellow-400 -translate-y-1' : 'text-indigo-600 -translate-y-1') 
                     : (highContrast ? 'text-gray-500' : 'text-slate-400')

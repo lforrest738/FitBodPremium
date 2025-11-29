@@ -1,16 +1,74 @@
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Button, ScreenTitle } from '../components/UI';
+import { Button, ScreenTitle, Card } from '../components/UI';
 import { RECIPES, SPONSORS } from '../data';
-import { ShoppingBag, Check } from 'lucide-react';
+import { ShoppingBag, Check, Camera, Loader2 } from 'lucide-react';
+import { analyzeFoodImage, blobToBase64 } from '../utils/ai';
 
 export const Nutrition: React.FC = () => {
   const { inventory, shoppingList, purchaseRecipe, toggleShoppingItem, highContrast } = useApp();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      
+      setAnalyzing(true);
+      setAnalysisResult(null);
+
+      try {
+          const base64 = await blobToBase64(file);
+          const result = await analyzeFoodImage(base64);
+          setAnalysisResult(result);
+      } catch (err) {
+          setAnalysisResult("Failed to analyze image.");
+      } finally {
+          setAnalyzing(false);
+      }
+  };
 
   return (
     <div className="pb-24">
       <ScreenTitle title="Nutrition Market" subtitle="Adaptive recipes for recovery." />
+
+      {/* AI FOOD SCANNER */}
+      <Card className="mb-8 border-dashed border-2 !bg-transparent flex flex-col items-center justify-center p-6 text-center">
+          <input 
+              type="file" 
+              accept="image/*" 
+              ref={fileInputRef} 
+              className="hidden" 
+              onChange={handleImageUpload}
+          />
+          
+          {analyzing ? (
+              <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="animate-spin text-indigo-600" size={32} />
+                  <p className="text-sm font-bold">Analyzing food...</p>
+              </div>
+          ) : analysisResult ? (
+              <div className="w-full text-left">
+                  <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-bold flex items-center gap-2"><Camera size={16}/> Analysis Result</h4>
+                      <button onClick={() => setAnalysisResult(null)} className="text-xs underline opacity-60">Clear</button>
+                  </div>
+                  <div className={`p-4 rounded-xl text-sm whitespace-pre-line ${highContrast ? 'bg-black text-yellow-400' : 'bg-indigo-50 text-indigo-900'}`}>
+                      {analysisResult}
+                  </div>
+              </div>
+          ) : (
+              <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer group">
+                  <div className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-2 transition-transform group-hover:scale-110 ${highContrast ? 'bg-black text-yellow-400' : 'bg-indigo-100 text-indigo-600'}`}>
+                      <Camera size={24} />
+                  </div>
+                  <h4 className="font-bold">AI Food Scanner</h4>
+                  <p className="text-xs opacity-60">Upload a photo to estimate calories & macros.</p>
+              </div>
+          )}
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         {RECIPES.map(recipe => {

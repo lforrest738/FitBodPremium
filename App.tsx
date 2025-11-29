@@ -9,6 +9,7 @@ import { Nutrition } from './screens/Nutrition';
 import { Stats } from './screens/Stats';
 import { Partners } from './screens/Partners';
 import { Premium } from './screens/Premium';
+import { Assistant } from './screens/Assistant'; // New Import
 import { ScreenTitle, Button, Card } from './components/UI';
 import { Eye, RotateCcw, Crown } from 'lucide-react';
 
@@ -16,8 +17,7 @@ import { Eye, RotateCcw, Crown } from 'lucide-react';
 const AppContent: React.FC = () => {
   const { user, highContrast, toggleHighContrast, resetState, isPremium } = useApp();
   const [activeTab, setActiveTab] = useState('home');
-  // MOVED UP: Hooks must be executed in the same order every render. 
-  // Cannot be after the conditional return (!user).
+  // Hooks must be executed in the same order every render. 
   const [showPremium, setShowPremium] = useState(false);
 
   if (!user) {
@@ -33,6 +33,7 @@ const AppContent: React.FC = () => {
     switch (activeTab) {
       case 'home': return <Dashboard onStartWorkout={() => setActiveTab('workout')} onUpgrade={() => setShowPremium(true)} />;
       case 'workout': return <Workout onComplete={() => setActiveTab('home')} />;
+      case 'coach': return <Assistant />; // New Route
       case 'food': return <Nutrition />;
       case 'partners': return <Partners />;
       case 'stats': return <Stats onUpgrade={() => setShowPremium(true)} />;
